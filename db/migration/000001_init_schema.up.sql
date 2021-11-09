@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS "user_subscriptions" (
     );
 
 ALTER TABLE user_subscriptions ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
-ALTER TABLE user_subscriptions ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id");
+ALTER TABLE user_subscriptions ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
 
 /* notes table product:
