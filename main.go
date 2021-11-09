@@ -1,21 +1,39 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/jana-o/subscription/app/handlers"
-	"net/http"
+	"database/sql"
+	"fmt"
+	"github.com/jana-o/subscription/app"
+	"github.com/jana-o/subscription/config"
+	"github.com/jana-o/subscription/db"
+	_ "github.com/lib/pq"
+	"log"
 )
 
 func main() {
-	// init router
-	router := gin.Default()
-	router.Use(gin.Recovery())
+	cfg, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatal("can't load config:", err)
+	}
 
-	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{"code":"PAGE_NOT_FOUND", "message":"Page not found"}) // 404
-	})
+	conn, err := sql.Open(cfg.DBDriver, cfg.DBSource)
+	if err != nil {
+		log.Fatal("can't connect to db:", err)
+	}
+	if err := conn.Ping(); err != nil {
+		log.Fatal("can't connect to db:", err)
+	}
 
-	// route handlers / endpoints
-	handlers.Routes(router)
+	store := db.NewStore(conn)
+	fmt.Println("connected to db")
 
+	server, err := app.NewServer(cfg, store)
+	if err != nil {
+		log.Fatal("can't create server:", err)
+	}
+
+	err = server.Start(cfg.ServerAddress)
+	if err != nil {
+		log.Fatal("can't start server:", err)
+	}
 }

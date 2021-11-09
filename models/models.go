@@ -23,17 +23,6 @@ type Product struct {
 	Description  string   `json:"description"`
 }
 
-type ProductList struct {
-	Products []Product `json:"productss"`
-}
-
-// Products slice to seed Product data
-var Products = []Product{
-	{ID: "1", Name: "Annual payment", Duration: 12, Price: 6.99, Description: "83.99 annual payment"},
-	{ID: "2", Name: "Semi-annual payment", Duration: 6, Price: 9.99, Description: "59.99 semi-annual payment"},
-	{ID: "3", Name: "Quarterly payment", Duration: 3, Price: 12.99, Description: "38.99 quarterly payment"},
-}
-
 // Contract represents data about a Subscription Contract.
 type Contract struct {
 	ID       	  uuid.UUID  `json:"id"`
