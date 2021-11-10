@@ -14,6 +14,11 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/gymondo-db?sslmode=disable" -verbose down
 
-.PHONY: postgres createdb dropdb
+sqlc:
+	sqlc generate
+
+
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc
 
 docker run --name postgres12 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:12-alpine
