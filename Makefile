@@ -17,8 +17,19 @@ migratedown:
 sqlc:
 	sqlc generate
 
+server:
+	go run main.go
 
+test:
+	@ echo "-> start tests..."
+	@ go test -v -cover ./...
+	@ echo "-> done!"
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc
+lint-go:
+	@ echo "-> Running linters ..."
+	@ golangci-lint run --print-resources-usage --exclude-use-default=false
+	@ echo "-> Done!"
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc server test lint-go
 
 docker run --name postgres12 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:12-alpine

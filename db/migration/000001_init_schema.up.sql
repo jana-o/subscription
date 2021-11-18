@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TYPE status AS ENUM ('Active', 'Paused', 'Canceled');
 
 CREATE TABLE IF NOT EXISTS "users" (
     "id"               UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
@@ -11,11 +12,11 @@ CREATE TABLE IF NOT EXISTS "users" (
     );
 
 CREATE TABLE IF NOT EXISTS "products" (
-    "id"            int PRIMARY KEY,
+    "id"            UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     "name"          varchar(255) NOT NULL,
-    "duration"      int,
-    "price"         float,
-    "description"   varchar(255),
+    "duration"      int NOT NULL,
+    "price"         float NOT NULL,
+    "description"   varchar(255) NOT NULL,
     "created_at"    timestamp DEFAULT (now()),
     "updated_at"    timestamp,
     "deleted_at"    timestamp
@@ -23,15 +24,15 @@ CREATE TABLE IF NOT EXISTS "products" (
 
 CREATE TABLE IF NOT EXISTS "user_subscriptions" (
     "id"              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    "user_id"         UUID,
-    "product_id"      int,
+    "user_id"         UUID NOT NULL,
+    "product_id"      UUID NOT NULL,
     "trial_start"     timestamp DEFAULT (now()),
     "trial_end"       timestamp,
     "start_date"      timestamp,
     "end_date"        timestamp,
     "discount"        float,
     "tax"             float,
-    "active"          BOOL,
+    "status"          status DEFAULT 'Active',
     "created_at"      timestamp DEFAULT (now()),
     "paused_at"       timestamp,
     "updated_at"      timestamp,

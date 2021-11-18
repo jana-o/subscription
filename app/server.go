@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jana-o/subscription/config"
-	"github.com/jana-o/subscription/db"
+	"github.com/jana-o/subscription/db/sqlc"
 )
 
 // Server serves HTTP requests for our banking service.
@@ -24,18 +24,22 @@ func NewServer(config config.Config, store db.Store) (*Server, error) {
 	return server, nil
 }
 
-func (server *Server) setupRouter() {
+func (s *Server) setupRouter() {
 	router := gin.Default()
 
-	router.GET("/products", server.getProducts)
-	router.GET("/products/:id", server.getProductByID)
+	router.GET("/products", s.getProducts)
+	router.GET("/products/:id", s.getProductByID)
+	router.POST("/products/:id/buy", s.createSubscription)
+	router.GET("/subscription/:id", s.getSubscriptionByID)
+	router.PATCH("/subscription/:id", s.pauseSubscription)
+	// router.PATCH("/subscription/:id/cancel", s.cancelSubscription)
 
-	server.router = router
+	s.router = router
 }
 
 // Start runs the HTTP server on a specific address.
-func (server *Server) Start(address string) error {
-	return server.router.Run(address)
+func (s *Server) Start(address string) error {
+	return s.router.Run(address)
 }
 
 func errorResponse(err error) gin.H {

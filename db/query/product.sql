@@ -11,5 +11,5 @@ SELECT * FROM products
 WHERE id = $1 LIMIT 1;
 
 -- name: GetProducts :many
-SELECT * FROM products
+SELECT * FROM products where deleted_at is null
 ORDER BY id;

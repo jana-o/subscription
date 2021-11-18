@@ -5,7 +5,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createProduct = `-- name: CreateProduct :one
@@ -18,10 +19,10 @@ INSERT INTO products (Name,
 `
 
 type CreateProductParams struct {
-	Name        string          `json:"name"`
-	Duration    sql.NullInt32   `json:"duration"`
-	Price       sql.NullFloat64 `json:"price"`
-	Description sql.NullString  `json:"description"`
+	Name        string  `json:"name"`
+	Duration    int32   `json:"duration"`
+	Price       float64 `json:"price"`
+	Description string  `json:"description"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
@@ -50,7 +51,7 @@ SELECT id, name, duration, price, description, created_at, updated_at, deleted_a
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetProductByID(ctx context.Context, id int32) (Product, error) {
+func (q *Queries) GetProductByID(ctx context.Context, id uuid.UUID) (Product, error) {
 	row := q.db.QueryRowContext(ctx, getProductByID, id)
 	var i Product
 	err := row.Scan(
@@ -67,7 +68,7 @@ func (q *Queries) GetProductByID(ctx context.Context, id int32) (Product, error)
 }
 
 const getProducts = `-- name: GetProducts :many
-SELECT id, name, duration, price, description, created_at, updated_at, deleted_at FROM products
+SELECT id, name, duration, price, description, created_at, updated_at, deleted_at FROM products where deleted_at is null
 ORDER BY id
 `
 
@@ -77,7 +78,7 @@ func (q *Queries) GetProducts(ctx context.Context) ([]Product, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Product
+	items := []Product{}
 	for rows.Next() {
 		var i Product
 		if err := rows.Scan(

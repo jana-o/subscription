@@ -13,7 +13,7 @@ func LoadConfig(path string) (config Config, err error) {
 
 	return Config{
 		DBDriver: "postgres",
-		DBSource: "postgres://postgres:password@localhost:5433/postgres?sslmode=disable",
+		DBSource: "postgres://root:secret@localhost:5432/gymondo-db?sslmode=disable",
 		ServerAddress: "0.0.0.0:8080",
 	}, nil
 }

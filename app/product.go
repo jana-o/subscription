@@ -3,21 +3,53 @@ package app
 import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	db "github.com/jana-o/subscription/db/sqlc"
 	"net/http"
 )
 
-type getProductByIDRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+type createProductRequest struct {
+	Name        string      `json:"name" binding:"required"`
+	Duration    int32   	 `json:"duration" binding:"required"`
+	Price       float64 	`json:"price" binding:"required"`
+	Description string  	`json:"description" binding:"required"`
 }
 
-func (server *Server) getProductByID(ctx *gin.Context) {
+func (s *Server) createProduct(ctx *gin.Context) {
+	var req createProductRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.CreateProductParams{
+	Name:        req.Name,
+	Duration:    req.Duration,
+	Price:       req.Price,
+	Description: req.Description,
+}
+	product, err := s.store.CreateProduct(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, product)
+}
+
+type getProductByIDRequest struct {
+	ID string `uri:"id" binding:"required,min=1"`
+}
+
+func (s *Server) getProductByID(ctx *gin.Context) {
 	var req getProductByIDRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	account, err := server.store.GetProductByID(ctx, req.ID)
+	id := uuid.MustParse(req.ID)
+	account, err := s.store.GetProductByID(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -31,19 +63,10 @@ func (server *Server) getProductByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
-type getProductsRequest struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
-}
 
-func (server *Server) getProducts(ctx *gin.Context) {
-	var req getProductsRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+func (s *Server) getProducts(ctx *gin.Context) {
 
-	accounts, err := server.store.GetProducts(ctx)
+	accounts, err := s.store.GetProducts(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

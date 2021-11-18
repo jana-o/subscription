@@ -6,7 +6,7 @@ import (
 	`fmt`
 )
 
-type Store interface {
+type Store interface{
 	Querier
 }
 
@@ -25,8 +25,8 @@ func NewStore(db *sql.DB) Store {
 }
 
 // ExecTx executes a function within a database transaction
-func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
-	tx, err := store.db.BeginTx(ctx, nil)
+func (s *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}

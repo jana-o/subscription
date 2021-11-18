@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/jana-o/subscription/app"
 	"github.com/jana-o/subscription/config"
-	"github.com/jana-o/subscription/db"
+	"github.com/jana-o/subscription/db/sqlc"
 	_ "github.com/lib/pq"
 	"log"
 )
